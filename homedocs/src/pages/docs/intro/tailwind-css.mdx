@@ -1,0 +1,128 @@
+---
+layout: ../../../layouts/DocsLayout.astro
+title: Tailwind CSS
+description: Integrate Tailwind CSS with CxJS for utility-first styling
+---
+
+import CodeExample from "../../../components/CodeExample.astro";
+import OnThisPage from "../../../components/OnThisPage.astro";
+import TailwindExample from "../../../examples/intro/TailwindExample.tsx";
+import TailwindExampleCode from "../../../examples/intro/TailwindExample.tsx?raw";
+
+# Tailwind CSS
+
+<OnThisPage />
+
+CxJS works well with Tailwind CSS. Use Tailwind's utility classes for layout and custom styling while leveraging CxJS widgets for complex UI components like grids, forms, and charts.
+
+## Using with CxJS
+
+Apply Tailwind classes directly to CxJS components using the `class` attribute:
+
+<CodeExample code={TailwindExampleCode}>
+  <TailwindExample client:load />
+</CodeExample>
+
+Tailwind is particularly useful for:
+
+- **Page layouts** - Use flexbox and grid utilities
+- **Spacing** - Apply margin and padding with utility classes
+- **Custom components** - Style wrappers and containers around CxJS widgets
+
+CxJS themes handle widget internals (inputs, dropdowns, grids), while Tailwind handles the surrounding layout and custom elements.
+
+## Installation
+
+Install Tailwind CSS and its dependencies:
+
+```bash
+npm install tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+## Configuration
+
+Configure `tailwind.config.js` to scan your source files:
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+```
+
+Import Tailwind CSS and your CxJS theme styles into the Tailwind `components` layer in your main stylesheet.
+CxJS styles need to be in the `components` layer so they have the correct specificity — higher than Tailwind's base styles but lower than utility classes.
+
+For CSS themes:
+
+```css
+@import "tailwindcss";
+
+@layer components {
+  @import "cx-theme-variables/dist/widgets.css";
+}
+```
+
+For SCSS themes, `@layer` does not work well with SCSS `@use`, so use `sass:meta` to load the theme:
+
+```scss
+@import "tailwindcss";
+@use "sass:meta";
+
+@layer components {
+  @include meta.load-css("cx-theme-variables/src/index");
+}
+```
+
+## Build Setup
+
+### Vite
+
+Install the Tailwind CSS Vite plugin and configure it in `vite.config.js`:
+
+```javascript
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [tailwindcss()],
+  oxc: {
+    jsx: {
+      runtime: "automatic",
+      importSource: "cx",
+    },
+  },
+});
+```
+
+### webpack
+
+For webpack, install the PostCSS loader:
+
+```bash
+npm install postcss-loader
+```
+
+Add PostCSS to your CSS/SCSS rule:
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader", "postcss-loader"],
+      },
+    ],
+  },
+};
+```
+
+## Template
+
+For a complete example, see the [CxJS Tailwind CSS Template](https://github.com/codaxy/cxjs-tailwindcss-template) which includes a pre-configured webpack setup with layouts, dashboards, and sample pages.

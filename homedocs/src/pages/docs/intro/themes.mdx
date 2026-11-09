@@ -1,0 +1,60 @@
+---
+layout: ../../../layouts/DocsLayout.astro
+title: Themes
+description: Apply and customize visual themes for your application
+---
+
+import OnThisPage from "../../../components/OnThisPage.astro";
+
+# Themes
+
+<OnThisPage />
+
+CxJS offers two theming approaches: a modern **CSS variables theme** for runtime customization, and **classic themes** with compile-time SCSS configuration.
+
+## cx-theme-variables (Recommended)
+
+The [`cx-theme-variables`](https://www.npmjs.com/package/cx-theme-variables) theme uses CSS custom properties, enabling runtime theme switching (e.g., light/dark mode) without recompiling SCSS. It supports presets, tweaks, dynamic themes, and dark mode out of the box. Preview it in the [Theme Editor](/themes).
+
+```bash
+npm install cx-theme-variables
+```
+
+```tsx
+import "cx-theme-variables/dist/reset.css";
+import "cx-theme-variables/dist/widgets.css";
+import "cx-theme-variables/dist/charts.css";
+import "cx-theme-variables/dist/svg.css";
+```
+
+Or import from SCSS source:
+
+```scss
+@use "cx-theme-variables/src/index";
+```
+
+For presets, tweaks, dark mode, dynamic themes, and CSS variable overrides, see the [detailed documentation](/docs/concepts/css-variables-theme).
+
+## Classic Themes
+
+Classic themes use SCSS variables that are resolved at compile time. They produce smaller CSS output but require recompilation to change. See them in action at the [CxJS Gallery](https://gallery.cxjs.io/).
+
+| Theme           | Package                 | Description                             |
+| --------------- | ----------------------- | --------------------------------------- |
+| Aquamarine      | `cx-theme-aquamarine`   | Clean, modern theme with aquamarine accents |
+| Material        | `cx-theme-material`     | Google Material Design inspired theme   |
+| Material Dark   | `cx-theme-material-dark`| Material Design dark variant            |
+| Frost           | `cx-theme-frost`        | Light theme with subtle blue tones      |
+| Dark            | `cx-theme-dark`         | Dark theme for low-light environments   |
+| Space Blue      | `cx-theme-space-blue`   | Dark blue theme                         |
+| Packed Dark     | `cx-theme-packed-dark`  | Compact dark theme for data-dense UIs   |
+
+```bash
+npm install cx-theme-aquamarine
+```
+
+```scss
+@use "cx-theme-aquamarine/src/index";
+```
+
+For customization with variables, state style maps, and CSS overrides, see the [detailed documentation](/docs/concepts/classic-themes).

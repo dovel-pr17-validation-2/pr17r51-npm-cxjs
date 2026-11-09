@@ -1,0 +1,12 @@
+@use "sass:color";
+@use "cx-theme-aquamarine/src/index" as theme;
+
+@use "./util/customize-master" as *;
+
+// Using literal value from $cx-theme-primary-color
+$_primary-color: #49c7de;
+
+@include customize-master(
+   $brand-background: color.adjust($_primary-color, $lightness: -10%),
+   $brand-highlight-color: color.adjust($_primary-color, $lightness: -10%)
+);

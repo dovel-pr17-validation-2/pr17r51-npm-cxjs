@@ -1,0 +1,173 @@
+---
+layout: ../../../layouts/DocsLayout.astro
+title: Grouping
+description: Group rows by column values
+---
+
+import ImportPath from "../../../components/ImportPath.astro";
+import CodeExample from "../../../components/CodeExample.astro";
+import OnThisPage from "../../../components/OnThisPage.astro";
+
+import GroupingExample from "../../../examples/tables/GroupingExample.tsx";
+import GroupingExampleCode from "../../../examples/tables/GroupingExample.tsx?raw";
+
+import GroupCaptionsExample from "../../../examples/tables/GroupCaptionsExample.tsx";
+import GroupCaptionsExampleCode from "../../../examples/tables/GroupCaptionsExample.tsx?raw";
+
+import GroupRowNumbersExample from "../../../examples/tables/GroupRowNumbersExample.tsx";
+import GroupRowNumbersExampleCode from "../../../examples/tables/GroupRowNumbersExample.tsx?raw";
+
+# Grouping
+
+<OnThisPage collapsed />
+
+Grid supports grouping records by one or more fields with aggregation and custom footers.
+
+<CodeExample code={GroupingExampleCode}>
+  <GroupingExample client:load />
+</CodeExample>
+
+Records are grouped by continent with aggregate calculations shown in the footer. Because the grid sets `sortGroups`, clicking the **Visits** header also reorders the continents by their total visits, and **Name** orders them by head count.
+
+## Basic Grouping
+
+Use the `grouping` property to group records by a field:
+
+```tsx
+<Grid
+  records={m.records}
+  grouping="continent"
+  columns={[
+    { header: "Name", field: "fullName" },
+    { header: "Continent", field: "continent" },
+  ]}
+/>
+```
+
+## Multi-Level Grouping
+
+Pass an array for multiple grouping levels. The first level with an empty key groups all records (useful for totals):
+
+```tsx
+grouping={[
+  { key: {}, showFooter: true },  // Total row
+  "continent"                      // Group by continent
+]}
+```
+
+## Aggregation
+
+Configure aggregates on columns to calculate values per group:
+
+```tsx
+columns={[
+  {
+    header: "Name",
+    field: "fullName",
+    aggregate: "count",
+    footer: tpl(m.$group.fullName, "{0} people"),
+  },
+  {
+    header: "Visits",
+    field: "visits",
+    aggregate: "sum",
+  },
+]}
+```
+
+## Aggregate Functions
+
+| Function   | Description               |
+| ---------- | ------------------------- |
+| `count`    | Count non-null values     |
+| `sum`      | Sum numeric values        |
+| `avg`      | Average of numeric values |
+| `min`      | Minimum value             |
+| `max`      | Maximum value             |
+| `distinct` | Count unique values       |
+
+## Aggregate Alias
+
+Use `aggregateAlias` to give the aggregate a custom name in `$group`:
+
+```tsx
+{
+  header: "Browser",
+  field: "browser",
+  aggregate: "distinct",
+  aggregateAlias: "browsers",
+  footer: tpl(m.$group.browsers, "{0} browsers"),
+}
+```
+
+## Group Captions
+
+Use `showCaption: true` in the grouping configuration to display a caption row for each group. Define `caption` on columns to customize what appears in the caption row:
+
+<CodeExample code={GroupCaptionsExampleCode}>
+  <GroupCaptionsExample client:load />
+</CodeExample>
+
+## Per-Group Row Numbers
+
+Add a column with the built-in `cxe-grid-row-number` class to display automatic row numbers. By default these count continuously across the whole grid. Set `resetRowNumbers: true` on a grouping level to restart numbering from 1 at the beginning of each group:
+
+<CodeExample code={GroupRowNumbersExampleCode}>
+  <GroupRowNumbersExample client:load />
+</CodeExample>
+
+The counter resets on the group caption row, so the grouping level needs a caption (`showCaption` or `caption`) for the reset to take effect.
+
+## Sorting Groups
+
+By default groups are ordered by their key, ascending. There are three ways to change that.
+
+**Sort by an aggregate or key declaratively.** Set `sortField` (and optionally `sortDirection`) on a grouping level. The field is resolved against the group's key fields, aggregate aliases and `$name`, so an aggregate alias sorts groups by that aggregate:
+
+```tsx
+grouping={[
+  {
+    key: { continent: { bind: "$record.continent" } },
+    sortField: "visits",     // aggregate alias
+    sortDirection: "DESC",   // highest total first
+  },
+]}
+```
+
+Use a `sorters` array for multi-field group sorting (`[{ field, direction }, ...]`). A custom `comparer` still takes precedence over both.
+
+**Sort groups by clicking column headers.** Set `sortGroups` on the grid. When the user sorts a column whose field is a group key or aggregate, the groups reorder to match; sorting any other column leaves the group order untouched. This is ignored when `preserveGroupOrder` is set.
+
+```tsx
+<Grid sortGroups grouping={["continent"]} columns={[ /* sortable columns */ ]} />
+```
+
+## Group Data
+
+The `$group` object contains:
+
+| Property   | Description                    |
+| ---------- | ------------------------------ |
+| `$name`    | Group name/label               |
+| `$level`   | Nesting level (0 for deepest)  |
+| `$records` | Records in the group           |
+| `$key`     | Serialized group key           |
+| `[field]`  | Aggregate value for each field |
+
+## Grouping Configuration
+
+| Property          | Type         | Description                                                                                                  |
+| ----------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `key`             | `object`     | Fields to group by. Empty object groups all records.                                                         |
+| `showHeader`      | `boolean`    | Show group header row.                                                                                       |
+| `showFooter`      | `boolean`    | Show group footer row.                                                                                       |
+| `showCaption`     | `boolean`    | Show group caption.                                                                                          |
+| `resetRowNumbers` | `boolean`    | Restart `cxe-grid-row-number` numbering from 1 at the start of each group at this level. Requires a caption. |
+| `caption`         | `StringProp` | Caption template.                                                                                            |
+| `text`            | `StringProp` | Group name template.                                                                                         |
+| `sortField`       | `string`     | Sort groups by this field, resolved against the group's key fields, aggregate aliases and `$name`.           |
+| `sortDirection`   | `string`     | Sort direction for `sortField` (`ASC` or `DESC`). Defaults to `ASC`.                                          |
+| `sorters`         | `array`      | Multi-field group sorting: `[{ field, direction }, ...]`.                                                     |
+| `comparer`        | `function`   | Custom group comparer. Takes precedence over `sortField`/`sorters`.                                          |
+
+See also: [Dynamic Grouping](/docs/tables/dynamic-grouping), [GroupAdapter](/docs/tables/group-adapter)

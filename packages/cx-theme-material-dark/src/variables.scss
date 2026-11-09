@@ -1,0 +1,217 @@
+@use "sass:math";
+@use "sass:map";
+@use "sass:color";
+
+// =============================================================================
+// THEME-SPECIFIC VARIABLES (must be defined BEFORE @forward)
+// =============================================================================
+
+// Pick theme color scheme
+$primary-color-blue: #8cc8fe !default;
+$primary-color-gray: #607d8b !default;
+$primary-color-brown: #795548 !default;
+$primary-color-pink: #f186c0 !default;
+$primary-color-purple: #bb86fc !default;
+$primary-color-red: #ff7c5d !default;
+$primary-color-black: #212121 !default;
+$primary-color-green: #c6f68d !default;
+$primary-color-indigo: #3f51b5 !default;
+$primary-color-teal: #02eec1 !default;
+
+$cx-theme-primary-color: #80cbc4 !default;
+$cx-theme-accent-color: #ffcb82 !default;
+$cx-theme-danger-color: #cf6679 !default;
+
+// Pick theme size
+$normal-base-size: 14px !default;
+$small-base-size: 12px !default;
+$cx-theme-base-size: $normal-base-size !default;
+
+// Theme-specific colors
+$cx-theme-default-medium-emphasis: rgba(#fff, 0.6) !default;
+$cx-theme-default-disabled-text: rgba(#fff, 0.38) !default;
+$cx-theme-default-color-dark: #000000 !default;
+
+$cx-theme-default-background-color: #121212 !default;
+$cx-theme-default-background-overlay: rgba(255, 255, 255, 0.07);
+$cx-theme-default-medium-light-background-overlay: #323232;
+$cx-theme-default-light-background-overlay: rgba(255, 255, 255, 0.16);
+
+// Computed values
+$cx-theme-default-box-padding-computed: math.round($cx-theme-base-size * 0.5);
+$cx-theme-default-box-padding-value: if($cx-theme-base-size < 14px, math.round(math.div($cx-theme-base-size, 3)), $cx-theme-default-box-padding-computed);
+
+$cx-theme-default-box-shadow: 0 0 4px $cx-theme-primary-color;
+
+// =============================================================================
+// Forward cx/src/variables with theme overrides
+// =============================================================================
+@forward "cx/src/variables" with (
+   // Global
+   $cx-default-container-padding: 5px !default,
+   $cx-default-font-family: ("Roboto", "Open Sans", sans-serif) !default,
+   $cx-default-color: rgba(#fff, 0.87) !default,
+   $cx-default-border-color: transparent !default,
+   $cx-default-border-radius: 2px !default,
+
+   // Box
+   $cx-default-box-font-size: 13px !default,
+   $cx-default-box-line-height: $cx-theme-base-size + 10px !default,
+   $cx-default-box-border-width: 1px !default,
+   $cx-default-box-padding: $cx-theme-default-box-padding-value !default,
+   $cx-use-box-line-height-fix: false !default,
+
+   // Button
+   $cx-default-button-color: $cx-theme-default-color-dark !default,
+   $cx-default-button-font-weight: 450 !default,
+   $cx-default-button-background-color: #e0e0e0 !default,
+   $cx-default-button-border-width: 0 !default,
+   $cx-default-button-border-radius: 2px !default,
+   $cx-default-button-padding: ($cx-theme-default-box-padding-value + 1px) (2 * $cx-theme-default-box-padding-value + 6px) !default,
+
+   // Chart palette
+   $cx-default-palette-fill-blacken: 30% !default,
+   $cx-default-palette-fill-hover-blacken: 10% !default,
+   $cx-default-palette-fill-selected-blacken: 20% !default,
+   $cx-default-palette-fill-disabled-blacken: 45% !default,
+   $cx-default-palette-fill-whiten: 10% !default,
+   $cx-default-palette-fill-hover-whiten: 10% !default,
+   $cx-default-palette-fill-selected-whiten: 45% !default,
+   $cx-default-palette-fill-disabled-whiten: 10% !default,
+
+   // Tab
+   $cx-default-tab-color: rgba(#fff, 0.87) !default,
+   $cx-default-tab-font-weight: 500 !default,
+   $cx-default-tab-background-color: transparent !default,
+   $cx-default-tab-border-width: 0 0 2px !default,
+   $cx-default-tab-border-color: transparent !default,
+   $cx-default-tab-border-radius: 2px !default,
+   $cx-default-tab-padding: ($cx-theme-default-box-padding-value + 1px) (2 * $cx-theme-default-box-padding-value + 10px) !default,
+
+   // Tooltip
+   $cx-tooltip-background-color: #505050 !default,
+   $cx-tooltip-border-color: transparent !default,
+   $cx-tooltip-background-color-error: #505050 !default,
+   $cx-tooltip-border-color-error: #cf6679 !default,
+
+   // Window
+   $cx-default-window-header-padding: 10px 20px !default,
+   $cx-default-window-header-font-size: 18px !default,
+   $cx-default-window-header-background-color: #424242 !default,
+   $cx-default-window-background-color: $cx-theme-default-medium-light-background-overlay !default,
+   $cx-default-window-body-background-color: $cx-theme-default-medium-light-background-overlay !default,
+   $cx-default-window-footer-background-color: $cx-theme-default-medium-light-background-overlay !default,
+
+   // Toast
+   $cx-default-toast-padding: (2 * $cx-theme-default-box-padding-value) !default,
+   $cx-default-toast-background-color: $cx-theme-default-medium-light-background-overlay !default,
+   $cx-default-toast-color: rgba(#fff, 0.87) !default,
+   $cx-default-toast-box-shadow: none !default,
+
+   // Grid
+   $cx-default-grid-border-radius: 2px !default,
+   $cx-default-grid-border-color: #505050 !default,
+   $cx-default-grid-header-font-size: 14px !default,
+   $cx-default-grid-header-line-height: ($cx-theme-base-size + 10px + 1px) !default,
+   $cx-default-grid-header-background-color: $cx-theme-default-background-color !default,
+   $cx-default-grid-header-font-weight: 500 !default,
+   $cx-default-grid-header-color: color.adjust(#80cbc4, $lightness: 15%) !default,
+   $cx-default-grid-header-padding: ($cx-theme-default-box-padding-value + 2px) (2 * $cx-theme-default-box-padding-value + 6px) ($cx-theme-default-box-padding-value + 4px) !default,
+   $cx-default-grid-data-alternate-background-color: #2a2a2a !default,
+   $cx-default-grid-data-border-color: #2a2a2a !default,
+   $cx-default-grid-data-padding: ($cx-theme-default-box-padding-value + 2px) (2 * $cx-theme-default-box-padding-value + 7px) $cx-theme-default-box-padding-value !default,
+   $cx-default-grid-data-line-height: ($cx-theme-base-size + 10px + 1px) !default,
+   $cx-default-dragclone-background-color: $cx-theme-default-background-color !default,
+
+   // List
+   $cx-default-list-item-padding: ($cx-theme-default-box-padding-value + 1) (2 * $cx-theme-default-box-padding-value) $cx-theme-default-box-padding-value !default,
+
+   // Form
+   $cx-default-input-font-size: 14px !default,
+   $cx-default-input-border-color: rgba(255, 255, 255, 0.45) !default,
+
+   // Label
+   $cx-default-label-font-size: 12px !default,
+   $cx-default-label-color: rgba(#fff, 0.6) !default,
+
+   // DateTimePicker
+   $cx-default-datetimepicker-border-color: #414141 !default,
+   $cx-default-datetimepicker-background-color: $cx-theme-default-medium-light-background-overlay !default,
+   $cx-default-wheel-clip-border-color: #80cbc4 !default,
+   $cx-default-wheel-clip-border-radius: 2px !default,
+   $cx-default-wheel-clip-background-color: $cx-theme-default-medium-light-background-overlay !default,
+
+   // Calendar
+   $cx-default-calendar-background-color: $cx-theme-default-background-color !default,
+   $cx-default-calendar-border-width: 0 !default,
+   $cx-default-calendar-border-radius: 2px !default,
+   $cx-default-calendar-header-font-size: 16px !default,
+   $cx-default-calendar-header-background-color: $cx-theme-default-background-color !default,
+   $cx-default-calendar-day-font-size: 11px !default,
+   $cx-default-calendar-day-border-radius: 50% !default,
+
+   // Checkbox
+   $cx-default-checkbox-size: ($cx-theme-base-size + 10px - 6px) !default,
+   $cx-default-checkbox-background-color: transparent !default,
+   $cx-default-checkbox-border-color: #c2c2c2 !default,
+   $cx-default-checkbox-border-width: 2px !default,
+
+   // Radio
+   $cx-default-radio-background-color: $cx-theme-default-background-color !default,
+   $cx-default-radio-size: ($cx-theme-base-size + 10px - 6px) !default,
+   $cx-default-radio-color: #4db6ac !default,
+
+   // Lookup tag
+   $cx-default-input-tag-font-size: 12px !default,
+   $cx-default-input-tag-border-radius: 20px !default,
+   $cx-default-input-tag-spacing: 4px !default,
+
+   // ColorPicker
+   $cx-default-colorpicker-font-family: ("Roboto", "Open Sans", sans-serif) !default,
+   $cx-default-colorpicker-background-color: $cx-theme-default-background-color !default,
+   $cx-default-colorpicker-border-width: 1px !default,
+   $cx-default-colorpicker-box-shadow: none !default,
+
+   // Slider
+   $cx-default-slider-axis-size: 2px !default,
+   $cx-default-slider-axis-background-color: $cx-theme-default-background-overlay !default,
+   $cx-default-slider-range-background-color: #80cbc4 !default,
+   $cx-default-slider-handle-size: 16px !default,
+   $cx-default-slider-handle-background-color: #80cbc4 !default,
+   $cx-default-slider-handle-border-width: 2px !default,
+   $cx-default-slider-handle-border-color: #80cbc4 !default,
+   $cx-default-slider-handle-box-shadow: none !default,
+
+   // Switch
+   $cx-default-switch-axis-size: 8px !default,
+   $cx-default-switch-axis-background-color: $cx-theme-default-light-background-overlay !default,
+   $cx-default-switch-range-background-color: rgba(#80cbc4, 0.5) !default,
+   $cx-default-switch-handle-background-color: #8a8a8a !default,
+   $cx-default-switch-handle-border-color: #8a8a8a !default,
+
+   // Icon
+   $cx-default-icon-size: ($cx-theme-base-size + 10px) !default,
+   $cx-default-input-tool-size: ($cx-theme-base-size + 10px) !default,
+   $cx-default-clear-size: ($cx-theme-base-size + 10px) !default,
+
+   // Progressbar
+   $cx-default-progressbar-height: 8px !default,
+   $cx-default-progressbar-font-size: smaller !default,
+   $cx-default-progressbar-color: rgba(#fff, 0.6) !default,
+   $cx-default-progressbar-background-color: rgba(#80cbc4, 0.2) !default,
+   $cx-default-progressbar-border-width: 0 !default,
+   $cx-default-progressbar-indicator-background-color: #80cbc4 !default
+);
+
+// Use cx variables for derived values
+@use "cx/src/variables" as *;
+
+// =============================================================================
+// THEME-SPECIFIC DERIVED VARIABLES (for use in maps and widgets)
+// =============================================================================
+
+$cx-theme-default-input-padding: $cx-default-box-padding 0 !default;
+$cx-theme-default-font-weight: 450 !default;
+$cx-theme-default-paragraph-line-height: 1.5 !default;
+$cx-theme-default-section-background: $cx-theme-default-background-overlay !default;
+$cx-theme-default-grid-background-color: $cx-theme-default-medium-light-background-overlay !default;

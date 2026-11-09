@@ -1,0 +1,143 @@
+---
+layout: ../../../layouts/DocsLayout.astro
+title: Localization
+description: Translate UI text and format locale-specific data
+---
+
+import CodeExample from "../../../components/CodeExample.astro";
+import ImportPath from "../../../components/ImportPath.astro";
+import OnThisPage from "../../../components/OnThisPage.astro";
+import LocalizationExample from "../../../examples/concepts/LocalizationExample.tsx";
+import LocalizationExampleCode from "../../../examples/concepts/LocalizationExample.tsx?raw";
+
+# Localization
+
+<OnThisPage collapsed />
+
+CxJS supports culture-specific number, currency, and date formatting based on `Intl` helpers provided by modern browsers. It also offers translation of standard widget messages to different languages.
+
+## Example
+
+<CodeExample code={LocalizationExampleCode}>
+  <LocalizationExample client:load />
+</CodeExample>
+
+## Culture
+
+<ImportPath path="import { Culture } from 'cx/ui';" />
+
+The `Culture` object provides methods for selecting UI cultures used for formatting.
+
+### Setting Culture
+
+```tsx
+import "cx/locale/de-de"; // Import locale data
+
+Culture.setCulture("de-de");
+```
+
+Available locale packages include: `de-de`, `en-us`, `es-es`, `fr-fr`, `nl-nl`, `pt-pt`, `sr-latn-ba`.
+
+### Culture Methods
+
+| Method                               | Description                                         |
+| ------------------------------------ | --------------------------------------------------- |
+| `Culture.setCulture(code)`           | Sets the current culture for all formatting.        |
+| `Culture.setNumberCulture(code)`     | Sets culture for number formatting only.            |
+| `Culture.setDateTimeCulture(code)`   | Sets culture for date/time formatting only.         |
+| `Culture.setDefaultCurrency(code)`   | Sets the default currency (e.g., `"EUR"`, `"USD"`). |
+| `Culture.setDefaultTimezone(tz)`     | Sets the default timezone.                          |
+| `Culture.setDefaultDateEncoding(fn)` | Sets function for encoding dates.                   |
+
+These methods configure the default culture. Call them before the content is rendered: they apply to content
+rendered after the call, while widgets that already exist may keep the previous settings. If you change settings at
+runtime, re-render the content afterwards, as shown in [Dynamic Culture Loading](#dynamic-culture-loading).
+
+### Culture Scopes
+
+To format part of the page with a different culture, timezone or currency, for example to show documents for
+different timezones side by side, wrap that content in a detached `Restate` with its own culture created by
+`createCulture`:
+
+```tsx
+import { createCulture, enableCultureSensitiveFormatting, Restate, tpl } from "cx/ui";
+
+enableCultureSensitiveFormatting();
+
+<Restate detached culture={createCulture({ timezone: "Asia/Tokyo", defaultCurrency: "JPY" })} data={{ doc: m.doc }}>
+  <div text={tpl(m.doc.createdAt, "{0:datetime}")} />
+</Restate>;
+```
+
+Each culture created by `createCulture` has its own format cache. `culture`, `defaultCurrency` and `dateEncoding`
+are taken from the current culture unless specified; other settings are not. Culture scopes require culture-sensitive
+formatting, which is enabled automatically by some widgets, such as `NumberField`.
+
+The culture of a scope is set when the scope is created. To switch it, create a new scope, for example inside
+a `ContentResolver`:
+
+```tsx
+<ContentResolver
+  params={{ timezone: m.timezone }}
+  onResolve={({ timezone }) => (
+    <Restate detached culture={createCulture({ timezone })} data={{ doc: m.doc }}>
+      ...
+    </Restate>
+  )}
+/>
+```
+
+### Dynamic Culture Loading
+
+Use dynamic imports for code-splitting:
+
+```tsx
+async function loadCulture(culture: string) {
+  switch (culture) {
+    case "de-de":
+      await import("cx/locale/de-de");
+      break;
+    case "fr-fr":
+      await import("cx/locale/fr-fr");
+      break;
+    default:
+      await import("cx/locale/en-us");
+  }
+  Culture.setCulture(culture);
+  store.notify(); // Force re-render
+}
+```
+
+## Localization
+
+<ImportPath path="import { Localization } from 'cx/ui';" />
+
+The `Localization` object provides methods for translating widget messages.
+
+### Localization Methods
+
+| Method                                         | Description                                     |
+| ---------------------------------------------- | ----------------------------------------------- |
+| `Localization.localize(culture, name, values)` | Override widget properties for a given culture. |
+| `Localization.override(name, values)`          | Override widget properties for all cultures.    |
+| `Localization.registerPrototype(name, type)`   | Register a component type for localization.     |
+
+### Translating Widget Messages
+
+```tsx
+Localization.localize("de", "cx/widgets/TextField", {
+  validationErrorText: "Ungültige Eingabe.",
+  minLengthValidationErrorText: "Mindestens {0} Zeichen erforderlich.",
+  maxLengthValidationErrorText: "Maximal {0} Zeichen erlaubt.",
+});
+```
+
+### Overriding Defaults
+
+Use `override` to change defaults for all cultures:
+
+```tsx
+Localization.override("cx/widgets/DateField", {
+  format: "dd.MM.yyyy",
+});
+```

@@ -1,0 +1,179 @@
+import { Md } from '../../../components/Md';
+
+import pureContainer from './PureContainer';
+import classAndStyle from './classAndStyle';
+
+export default {
+    ...pureContainer,
+    ...classAndStyle,
+
+    resizable: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to enable resizing.
+        </Md></cx>
+    },
+    draggable: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to enable dragging the overlay.
+        </Md></cx>
+    },
+    center: {
+        key: true,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to initially place the overlay in the center of the page. This has the same effect as setting both `centerX` and `centerY` to `true`.
+        </Md></cx>
+    },
+    centerX: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to initially place the overlay in the center of the page horizontally.
+        </Md></cx>
+    },
+    centerY: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to initially place the overlay in the center of the page vertically.
+        </Md></cx>
+    },
+    animate: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to append the set `animate` state after the initial render. Appended CSS class may be used to
+            add show/hide animations.
+        </Md></cx>
+    },
+    modal: {
+        key: true,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to add a modal backdrop which masks mouse events for the rest of the page.
+        </Md></cx>
+    },
+    backdrop: {
+        key: true,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to add a modal backdrop which will dismiss the window when clicked.
+        </Md></cx>
+    },
+    destroyDelay: {
+        key: false,
+        type: 'number',
+        description: <cx><Md>
+            Number of milliseconds to wait, before removing the element from the DOM. Used in combination with the `animate`
+            property.
+        </Md></cx>
+    },
+    inline: {
+        key: true,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to force the element to be rendered inline, instead of being appended to the body element.
+            Inline overlays have z-index set to a very high value, to ensure they are displayed on top of the other content.
+        </Md></cx>
+    },
+    baseClass: {
+        key: false,
+        type: 'string',
+        description: <cx><Md>
+            Base CSS class to be applied to the field. Defaults to `overlay`.
+        </Md></cx>
+    },
+    containerStyle: {
+        key: false,
+        type: 'string',
+        description: <cx><Md>
+            Style to be applied to the overlay's container element.
+        </Md></cx>
+    },
+
+    dismissOnPopState: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to dismiss the window if the user presses the back button in the browser.
+        </Md></cx>
+    },
+
+    dismissOnFocusOut: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to dismiss the overlay when it loses focus.
+        </Md></cx>
+    },
+
+    autoFocus: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to automatically focus the dropdown when it's shown.
+        </Md></cx>
+    },
+
+    autoFocusFirstChild: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to automatically find and focus the first chinld in the dropdown when it's shown.
+        </Md></cx>
+    },
+
+    closeOnEscape: {
+        key: true,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to `true` to make the window automatically close if the Esc key is pressed on the keyboard.
+            Default value is `false`.
+        </Md></cx>
+    },
+
+    focusable: {
+        key: false,
+        type: 'boolean',
+        description: <cx><Md>
+            Set to true to make the top level overlay element focusable.
+        </Md></cx>
+    },
+
+    onMove: {
+        key: false,
+        type: 'function',
+        description: <cx><Md>
+            A callback function which fires while the overlay is being moved around.
+        </Md></cx>
+    },
+
+    onResize: {
+        key: false,
+        type: 'function',
+        description: <cx><Md>
+            A callback function which fires while the overlay is being resized.
+        </Md></cx>
+    },
+
+    zIndex: {
+        key: false,
+        type: 'number',
+        description: <cx><Md>
+            zIndex
+        </Md></cx>
+    },
+
+    resizeWidth: {
+        key: false,
+        type: 'number',
+        description: <cx><Md>
+            resizeWidth
+        </Md></cx>
+    },
+
+};

@@ -1,0 +1,19 @@
+{
+  "templates": [
+    {
+      "id": "vite",
+      "name": "CxJS + Tailwind CSS (Vite)",
+      "description": "Basic CxJS application template with Vite",
+      "url": "https://codeload.github.com/codaxy/cxjs-vite-template/zip/refs/heads/master",
+      "srcFolder": "cxjs-vite-template-master"
+    },
+    {
+      "id": "tailwind",
+      "name": "CxJS + Tailwind CSS (Webpack)",
+      "description": "CxJS with Tailwind CSS styling",
+      "url": "https://github.com/codaxy/cxjs-tailwindcss-template/archive/refs/heads/master.zip",
+      "srcFolder": "cxjs-tailwindcss-template-master"
+    }
+  ],
+  "defaultTemplate": "vite"
+}

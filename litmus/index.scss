@@ -1,0 +1,37 @@
+@use "manifest.scss";
+@use "./variables.scss";
+@use "cx/src/index.scss";
+
+@use "features/drag-drop/trello/index" as *;
+@use "features/wheel/index" as *;
+@use "features/hscroll/index" as *;
+@use "features/logo/index" as *;
+
+html {
+   height: 100%;
+}
+
+body {
+   margin: 0;
+   padding: 0;
+   height: 100%;
+   font-family: "Open Sans", sans-serif;
+}
+
+#app {
+   height: 100%;
+
+   & > div {
+      height: 100%;
+   }
+}
+
+section {
+   margin: 10px;
+   border: 1px solid lightgray;
+   padding: 10px 20px;
+
+   h3 {
+      margin: 10px 0 20px 0;
+   }
+}

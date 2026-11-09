@@ -1,0 +1,40 @@
+// Forward variables first so downstream @use picks them up
+@forward "./variables";
+
+// Load misc styles
+@use "../../misc/layout/index" as misc-layout;
+@use "../../misc/components/index" as misc-components;
+
+// Load theme (use overrides to avoid double-config of variables)
+@use "cx-theme-aquamarine/src/overrides.scss" as theme;
+
+// Load fiddle styles
+@use "components/index" as components;
+@use "routes/login/index" as login;
+@use "routes/default/index" as default-route;
+@use "routes/preview/index" as preview;
+
+html {
+   height: 100%;
+}
+
+body {
+   margin: 0;
+   height: 100%;
+   font-family: "Open Sans", sans-serif;
+   font-size: 14px;
+}
+
+#app {
+   height: 100%;
+}
+
+a {
+   text-decoration: none;
+}
+
+.cxb-submenu {
+   .cxb-menu {
+      min-width: 150px;
+   }
+}

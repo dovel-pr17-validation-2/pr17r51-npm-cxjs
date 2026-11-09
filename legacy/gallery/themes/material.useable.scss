@@ -1,0 +1,13 @@
+@use "cx-theme-material/src/variables.reset" as theme;
+@use "cx-theme-material/src/index";
+
+@use "./util/customize-master" as *;
+
+@include customize-master(
+   $brand-background: linear-gradient(
+         90deg,
+         #{theme.$cx-theme-primary-color},
+         #00d7eb
+      ),
+   $brand-highlight-color: theme.$cx-theme-primary-color
+);

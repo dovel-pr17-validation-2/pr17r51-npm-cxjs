@@ -1,0 +1,34 @@
+@use "../misc/layout/index" as misc-layout;
+@use "../misc/components/index" as misc-components;
+@use "../misc/components/variables" as misc-vars;
+@use "components/index" as components;
+@use "layout/index" as layout;
+@use "routes/index" as routes;
+
+:root {
+   --master-sidebar-background: rgba(255, 255, 255, 0.5);
+   --master-sidebar-color: #{misc-vars.$master-sidenav-link-color};
+   --master-sidebar-active-color: #{misc-vars.$master-sidenav-active-link-color};
+}
+
+.topbanner {
+   background: var(--master-brand-background);
+}
+
+.sidenav .cxb-link.cxs-active {
+   border-left-color: var(--master-brand-background-color);
+}
+
+.standalone.sidenav {
+   background: var(--master-sidebar-background);
+   color: var(--master-sidebar-color);
+
+   .cxb-link.cxs-active,
+   .cxb-link:hover {
+      color: var(--master-sidebar-active-color);
+   }
+}
+
+p:last-child {
+   margin-bottom: 0;
+}

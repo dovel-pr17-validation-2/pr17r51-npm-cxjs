@@ -1,0 +1,689 @@
+---
+layout: ../layouts/LegalLayout.astro
+title: Changelog
+description: Version history and release notes
+---
+
+## cx\@26.10.0
+
+**Changes**
+
+- A widget bound with an accessor chain now writes the prop's declared default to the store when it initializes, as a `{ bind }` object always has. Previously the store slot stayed `undefined`, so the outcome depended on how the binding was written: a chain-bound field held `undefined` instead of its `emptyValue` (`null`), a chain-bound `LineGraph` (or any other chart element with `active`) was not drawn until toggled, and a chain-bound `Slider` calculated its handle position from `undefined` and wrote `NaN` to the store on mouse wheel. Existing values are never overwritten. See [Breaking Changes](/docs/intro/breaking-changes) for what to check when upgrading ([#1337](https://github.com/codaxy/cxjs/issues/1337))
+
+**Fixes**
+
+- `Culture.setDefaultTimezone`, `setDefaultCurrency`, `setNumberCulture`, `setDateTimeCulture` and `setDefaultDateEncoding` now apply to formats that were already used. With culture-sensitive formatting enabled, formatters and compiled expressions and templates are cached on the default culture, and these setters dropped at most part of that cache, so content rendered after the call still used the previous settings — for example, a page reused to render documents for different timezones formatted every document in the first one's timezone. Every setter now resets the cache, as `setCulture` already did. Widgets that already exist are not updated; see [Culture Scopes](/docs/concepts/localization#culture-scopes) for formatting part of the page with a different culture ([#1342](https://github.com/codaxy/cxjs/issues/1342))
+- `Link` and `LinkButton` with `match="subroute"` now treat `?` as a boundary, like `/`. A list page carrying query state, such as `~/items?filter=x`, no longer turns off the highlight of its `~/items` nav item, while `~/items/42?tab=log` already kept it on ([#1340](https://github.com/codaxy/cxjs/pull/1340))
+
+---
+
+## cx\@26.9.3
+
+**Fixes**
+
+- An accessor chain passed to a field's `help` or `label`, or to `LabeledContainer`'s `label`, no longer crashes rendering with `ins.scheduleExploreIfVisible is not a function`. Every property read on an accessor returns another accessor, so the check for a widget class mistook it for one; only a real component type now counts, and the accessor becomes the bound text, like `bind(...)` ([#1333](https://github.com/codaxy/cxjs/issues/1333))
+- A controller attached to a `Window` or another overlay can now close it with `this.instance.parentOptions.dismiss()`. Previously only code inside the overlay received its `dismiss` ([#1332](https://github.com/codaxy/cxjs/issues/1332))
+
+---
+
+## cx\@26.9.2
+
+**Fixes**
+
+- `Grid` rows are no longer emitted as `tr` elements directly under `table`. Rows of a grid with merged cells are rendered as bare `tr`, because a `rowspan` cannot cross a row group boundary, but nothing enclosed them — so the rendered tree did not match the described one, React reported a hydration mismatch, and serializing the DOM produced one row group per row with the row's own `class` and `data-record-key` hoisted onto it. Consecutive such rows now share a generated `tbody` ([#1328](https://github.com/codaxy/cxjs/issues/1328))
+- `Grid` column headers now render inside `thead` instead of `tbody`. Headers repeated for each group through `grouping.showHeader` keep the `tbody` tag, as a second `thead` is not allowed between the data rows
+- `Grid` group captions now carry `role="columnheader"`. A caption is a heading for the rows it introduces rather than a value in the table, but it was exposed as an ordinary cell, so nothing associated it with those rows — a screen reader announced it as data, and accessibility checkers flagged the row as irregular, including when validating a tagged PDF export against PDF/UA. In the aggregate caption row (`grouping.showCaption`) only the cells that come from a column `caption` are marked; aggregate values stay plain cells ([#1329](https://github.com/codaxy/cxjs/issues/1329))
+- `Grid` looked its rows up as `tbody[data-record-key]` when scrolling the cursor into view, which silently matched nothing in a grid with merged cells
+
+---
+
+## cx\@26.9.1
+
+**Fixes**
+
+- `AggregateFunction` is now exported from `cx/data`. The class backing the grid's `sum`, `avg`, `count`, `distinct`, `min`, `max` and `last` aggregates was reachable only through a deep import
+
+---
+
+## cx\@26.9.0
+
+**Features**
+
+- `Svg` now forwards `role` and `ariaLabel` to the rendered `svg` element, defaulting `role` to `img` when `ariaLabel` is set. Naming a drawing announces it as a single graphic instead of as its individual shapes, which is also how a tagged PDF export tags it. An unnamed drawing is left untouched ([#1327](https://github.com/codaxy/cxjs/pull/1327))
+- `Legend` entry shapes are now hidden from assistive technology by default — the shape is a color key whose meaning the entry text beside it already carries, so it is no longer announced as an unnamed graphic. Added `shapeRole` and `shapeAriaLabel` for callers that need the shape exposed and named ([#1327](https://github.com/codaxy/cxjs/pull/1327))
+- `TextArea` now implements the `trim` flag it inherits from `TextField`. Trimming applies to the commit that ends the edit, not to intermediate `input` commits, so a trailing newline can still be typed; whitespace inside the text is never touched ([#1321](https://github.com/codaxy/cxjs/pull/1321))
+- Added two Vite plugins as counterparts of the existing Babel and webpack tooling ([#1318](https://github.com/codaxy/cxjs/pull/1318)):
+  - `vite-plugin-transform-cx-imports` rewrites namespace imports (`import { Grid } from "cx/widgets"`) into direct file imports, for faster dev-server cold starts and deterministic tree shaking. It detects a pre-bundled `cx` and skips the rewrite where it would break resolution
+  - `vite-plugin-cx-scss-manifest` collects the CxJS modules an app actually imports and generates an SCSS manifest, so only those widget styles are compiled — which can cut the generated CSS by 70–90% in smaller apps. Deep imports are collected from Vite's module resolution at no cost; pairing it with the plugin above turns barrel imports into deep imports before it sees them, removing the source parsing entirely
+
+**Fixes**
+
+- Dropdowns, `LookupField` option lists and context menus now position correctly when the element they belong to lives inside a same-origin iframe. Placement is computed against the document the dropdown actually renders in, mouse-tracked placements translate the cursor into that document's coordinate space, and scroll and resize of every frame window between the related element and the top document are now observed, so the dropdown follows its field instead of drifting. Viewport measurement also switched from `offsetWidth`/`offsetHeight` to `clientWidth`/`clientHeight`, so scrollbars no longer count as available space ([#1325](https://github.com/codaxy/cxjs/pull/1325))
+- Focus detection now looks through same-origin iframes. `getActiveElement` takes an optional `document` and drills into the focused frame's own document instead of stopping at the `<iframe>` element, `isSelfOrDescendant` walks out through ancestor frame elements, and `Window`, `MenuItem` and the `DOM` focus helpers use it in place of `document.activeElement` ([#1325](https://github.com/codaxy/cxjs/pull/1325), [#1326](https://github.com/codaxy/cxjs/pull/1326))
+- `Overlay` now clears the resize cursor when the pointer leaves a resizable edge, restoring the cursor from the widget's own style instead of leaving the last `*-resize` value stuck ([#1322](https://github.com/codaxy/cxjs/pull/1322))
+- Type-only re-exports (`GridRowConfig`, `AccessorChain`, and the `JSX` namespace in `jsx-dev-runtime`) now use `export type`, so compiling CxJS sources with isolated-modules transpilers no longer fails ([#1318](https://github.com/codaxy/cxjs/pull/1318))
+- `cx-build-tools`' manifest recorder now resolves re-exports that declare a source, so re-exported entries are recorded against the module they actually come from ([#1318](https://github.com/codaxy/cxjs/pull/1318))
+
+---
+
+## cx\@26.8.0
+
+**Features**
+
+- `LineGraph` smoothing now uses monotone cubic interpolation. Curves rendered with `smooth` follow the data without ever overshooting its vertical range — flat segments stay flat and steep transitions no longer produce phantom peaks or dips, for both line and area rendering. The previous bezier-based smoothing has been removed, and `smoothingRatio` is deprecated and ignored, as monotone interpolation has no configurable curvature ([#1312](https://github.com/codaxy/cxjs/pull/1312))
+- `Grid` columns that define an explicit `sortField` now sort by it even when they also display a computed `value`. The sort key precedence is now `sortValue` > `sortField` > `value` > `field`, and the rule is documented on the `sortField` and `sortValue` column properties ([#1317](https://github.com/codaxy/cxjs/pull/1317))
+
+**Fixes**
+
+- Fixed sorting of `Grid` columns identified by a value selector instead of a field. Clicking such a column no longer crashes when the `sortField`/`sortDirection` bindings are declared but empty, sorted-header indicators and sort toggling now identify a sort by its field and value selector pair — so field-less columns no longer light up or toggle together, and columns sharing a field name no longer hijack each other's sort direction ([#1316](https://github.com/codaxy/cxjs/pull/1316))
+- `NumericScale.trackValue` now constrains the computed value instead of the raw pixel coordinate, matching `TimeScale`. Previously, with a pixel range wider than the value range, an in-range value whose pixel fell outside the scale bounds was wrongly clamped ([#1311](https://github.com/codaxy/cxjs/pull/1311))
+- Widgets defined in the `ui` namespace (`Widget`, `PureContainer`, `Repeater`, layout components, etc.) are now re-exported from `cx/widgets` using direct `export ... from` declarations instead of being imported and then re-exported, which improves tree-shaking
+
+---
+
+## cx\@26.7.5
+
+**Fixes**
+
+- `Cx` now survives deep re-entrant synchronous update bursts. Large renders that write to the store while rendering (e.g. a several-hundred-page report) could re-render the root hundreds of times in one synchronous burst, exceeding React's nested-update limit and crashing the render. Updates are now issued synchronously at first and escalate to microtasks once a burst grows deep — letting React's nested-update counter reset — and finally to timeouts, so even a store that never converges degrades to a responsive page instead of a frozen tab. Every store notification is tracked individually, so `batchUpdatesAndNotify` callbacks fire only after the DOM reflects the change — including updates that land while a previous one is still converging. On by default. If you suspect it causes trouble, opt out at startup with `disableSyncUpdateCoalescing()` and please [report the issue](https://github.com/codaxy/cxjs/issues) so it can be fixed. The sync burst threshold can be tuned with `enableSyncUpdateCoalescing(limit)` ([#1310](https://github.com/codaxy/cxjs/pull/1310))
+- `Cx` error handling now uses `getDerivedStateFromError`: while an error is dispatched to the `onError` callback the failed subtree renders nothing, and rendering resumes once the callback repairs the state. Instances without `onError` rethrow, so errors keep propagating to the nearest ancestor boundary
+- Added the missing `arrowIcon` prop to `TreeNodeConfig`, so setting the expand/collapse glyph from JSX no longer raises a type error ([#1309](https://github.com/codaxy/cxjs/pull/1309))
+
+---
+
+## cx\@26.7.0
+
+**Features**
+
+- Group sorting can now target aggregates and keys declaratively: grouping levels accept `sortField`/`sortDirection` or a `sorters` array, resolved against the group's key fields, aggregate aliases and `$name`. Added a `sortGroups` flag to `Grid` that reorders groups when a column whose field is a group key or aggregate is sorted ([#1303](https://github.com/codaxy/cxjs/issues/1303))
+- Pressing `Esc` during a drag & drop operation now cancels it — nothing is dropped, drop zones reset, and the drag clone is removed. `onDragEnd` now receives a `DragEndEvent` with a `cancelled` flag so handlers can tell a cancel apart from a drop ([#1301](https://github.com/codaxy/cxjs/issues/1301))
+
+**Fixes**
+
+- Reserved right padding on `NumberField` for the clear button when `showClear` is enabled, so the value no longer sits underneath the clear icon
+- `ExposedValueView` now deletes the exposed record by its slot key ([#1302](https://github.com/codaxy/cxjs/pull/1302))
+
+---
+
+## cx\@26.6.0
+
+**Features**
+
+- Added a `resetRowNumbers` flag to `Grid` grouping levels. When set on a grouping level (which must render a caption), the automatic `cxe-grid-row-number` column restarts numbering from 1 at the beginning of each group instead of counting continuously across the grid
+- Added `validateOptionExists` flag to `LookupField`. When enabled and `options` is an array, the field reports a validation error (`invalidOptionText`) if the stored selection is not present in the options list. Useful for surfacing stale ids preserved across sessions ([#1271](https://github.com/codaxy/cxjs/issues/1271))
+
+---
+
+## cx\@26.5.1
+
+**Features**
+
+- Added a `daybefore` date format that renders a date shifted back by one calendar day, using the same pattern argument as `datetime` — handy for displaying the exclusive end of a date range as an inclusive value. Also added the `dayBefore` date utility ([#1290](https://github.com/codaxy/cxjs/issues/1290))
+- Added a `quarter` date format that renders the calendar quarter of a date from a string-template pattern (`{q}`, `{yyyy}`, `{yy}`), with an `exclusive` flag for displaying the end of a half-open range. Also added the `dateQuarter` date utility
+- Added a `hideClippedLabels` option to chart axes that drops a first/last label, and its tick, when it would be clipped at the chart edge — enabled by default on `TimeAxis` ([#1291](https://github.com/codaxy/cxjs/issues/1291))
+- `DateTimePicker` date and time wheels now scroll endlessly, so picking values across large ranges no longer hits hard list boundaries
+
+**Fixes**
+
+- `Grid`'s `onCreateFilter` callback may now return `null` to apply no filter
+- Fixed the `ValidationGroup` `visited` flag not propagating to nested fields when a field's own bound data was unchanged ([#1276](https://github.com/codaxy/cxjs/issues/1276))
+- Added the missing SCSS import for the `RangeMarker` chart component — its styles were not being generated
+- Added missing `@use` declarations in `RangeMarker.scss` for `besm`, `include`, and `variables`
+
+---
+
+## cx\@26.4.4
+
+**Fixes**
+
+- Restored text ellipsis on single-selection `LookupField` when the selected value overflows the field width. Baseline alignment with adjacent fields and buttons is preserved ([#1287](https://github.com/codaxy/cxjs/issues/1287))
+
+---
+
+## cx\@26.4.3
+
+**Fixes**
+
+- Added missing `Fragment` and `JSX` namespace exports to `jsx-dev-runtime` so `<>...</>` syntax and intrinsic element typings work under `"jsx": "react-jsxdev"`
+
+---
+
+## cx\@26.4.2
+
+**Features**
+
+- Added `alignArrow` option to `Dropdown` that shifts the dropdown so the arrow tip lines up with the target point. Enabled by default on `ContextMenu`, so right-click menus with arrows point at the cursor.
+- Added `arrowOffset` option to `Dropdown` for overriding the theme's arrow offset per instance.
+
+---
+
+## cx\@26.4.1
+
+**Fixes**
+
+- Fixed `innerTextTrim` to remove newline whitespace without inserting extra spaces
+- Bumped `route-parser-ts` dependency to `^1.1.2`
+- Exposed `package.json` via the `exports` map
+
+---
+
+## cx\@26.4.0
+
+**Fixes**
+
+- Added missing SCSS imports for `Swimlane` and `Swimlanes` chart components — styles were not being generated
+- Added missing `@use` declarations in `Swimlane.scss` and `Swimlanes.scss` for `besm`, `include`, and `variables`
+- Added dark mode chart colors (swimlane, gridlines, axes, shapes, ranges, legend) to the docs theme
+
+- Added `top` mod to `LabelsTopLayout` that removes top padding from labels in the first row, useful inside Windows and dialogs
+
+---
+
+## cx\@26.3.9
+
+**Fixes**
+
+- Replaced wheel scrollbar-hiding hack (`width: calc(100% + 20px)`) with `scrollbar-width: none`
+- Fixed wheel clip overflow by using `width: fit-content` and `box-sizing: content-box`
+
+**Features**
+
+- Added dedicated CSS variables for switch styling (`--cx-switch-axis-background-color`, `--cx-switch-range-background-color`, `--cx-switch-handle-background-color`, `--cx-switch-handle-border-color`, `--cx-switch-handle-box-shadow`)
+- Added CSS variables for DateTimePicker (`--cx-datetimepicker-background-color`, `--cx-datetimepicker-border-width`, `--cx-datetimepicker-padding`)
+- Added CSS variables for wheel styling (`--cx-wheel-border-width`, `--cx-wheel-border-color`, `--cx-wheel-option-padding-x`, `--cx-wheel-option-padding-y`)
+
+---
+
+## cx\@26.3.7
+
+**Fixes**
+
+- Fixed infinite grid not displaying fetched records when `emptyText` is set
+- Fixed `onLoadingError` callback receiving arguments in wrong order
+- Fixed false-positive sort change detection on initial render of infinite grids with sort bindings
+
+---
+
+## cx\@26.3.5
+
+**Fixes**
+
+- Fixed left icon positioning for fields with asymmetric horizontal and vertical padding
+
+---
+
+## cx\@26.3.4
+
+**Fixes**
+
+- Fixed `AccessorChain` type to restore Go-to-Definition and Rename Symbol support in IDEs
+- `createFunctionalComponent` now preserves generic type parameters
+- Fixed some `Window` instances not updating
+- Added missing types for `List` sort fields
+- Tweaked scss files to work with manifest files
+
+---
+
+## cx\@26.3.1
+
+**Breaking Changes**
+
+- Migrated all SCSS files from `@import` to `@use`/`@forward` (modern Sass modules)
+- All theme packages have been restructured to use the new module system
+- Projects must update their SCSS entry points — see [Breaking Changes](/docs/intro/breaking-changes#2631---modern-sass-modules) for migration instructions
+
+**Features**
+
+- New [`cx-theme-variables`](https://www.npmjs.com/package/cx-theme-variables) theme based entirely on CSS custom properties, enabling runtime theme switching. Try it out in the [Theme Editor](/themes).
+- Three-layer theming with `@forward...with()` for clean variable configuration through app, theme, and framework layers
+- CSS variable-aware utility functions (`cx-lighten`, `cx-darken`, `cx-calc`)
+
+---
+
+## cx\@26.2.1
+
+**Fixes**
+
+- Relaxed `LookupFieldConfig` type constraints to improve subclass extensibility
+- Changed generic type defaults from `unknown` to `any` for better compatibility with existing code
+- Added `LookupFieldUniversalConfig` export for extending LookupField in subclasses
+
+---
+
+## cx\@26.1.0
+
+**Features**
+
+- Complete TypeScript rewrite with full type safety
+- New typed model system with `createModel`
+- Improved JSX syntax - `<cx>` wrapper no longer required
+- Modern build tooling support (Vite, esbuild, SWC)
+- Split HTML and React elements for better type inference
+
+See [Breaking Changes](/docs/intro/breaking-changes#2610) for migration details.
+
+---
+
+## cx\@25.1.0
+
+**Features**
+
+- Date only (2025-01-01) strings are now parsed as local time, instead of UTC.
+- `encodeDate` function can be used to format date objects as date only strings, i.e. 2025-01-01. This function can be set as `encoding` for the `DateField`, `MonthField`, `Calendar`, and `MonthPicker` components.
+- `MonthField` and `MonthPicker` now include a flag `inclusiveTo` which allows month ranges to end with the last day of the month, instead of the first day of the next month.
+
+---
+
+## cx\@24.6.2
+
+**Features**
+
+- Add SnapPointFinder convertX and convertY functions
+
+---
+
+## cx\@24.6.1
+
+**Fixes**
+
+- Fix onValidate arguments for multiple lookups
+
+---
+
+## cx\@24.5.2
+
+**Features**
+
+- New formats: `capitalize` and `titleCase`.
+
+---
+
+## cx\@24.5.1
+
+**Features**
+
+- `Window.pad` option. See [Breaking changes](/docs/intro/breaking-changes).
+
+---
+
+## cx\@24.4.9
+
+**Features**
+
+- Swimlane component
+
+---
+
+## cx\@24.4.8
+
+**Features**
+
+- Set caption style and class even when caption is defined as items/children.
+
+**Fixes**
+
+- Fix grid grouping text property description.
+
+---
+
+## cx\@24.4.7
+
+**Features**
+
+- Improve selection of dropzone based on distance to the center.
+- Allow grid column caption to be specified as false.
+- Support dynamic chart height based on the number of categories.
+
+**Fixes**
+
+- Avoid rendering shape prop.
+- Fix grid rendering when column caption is defined via items only.
+
+---
+
+## cx\@24.4.6
+
+**Features**
+
+- Allow grid column caption to be specified as false.
+- Support dynamic chart height based on the number of categories.
+
+**Fixes**
+
+- Fix grid rendering when column caption is defined via items only.
+
+---
+
+## cx\@24.4.5
+
+**Features**
+
+- Introduce new feature for grid: merging cells.
+
+---
+
+## cx\@24.4.4
+
+**Features**
+
+- Introducing the new `zeropad` format.
+
+---
+
+## cx\@24.4.3
+
+**Fixes**
+
+- Corrected distortion in pie-chart shapes caused by mathematical errors.
+- Resolved grid resize issues by implementing element existence checks prior to resizing.
+
+---
+
+## cx\@24.4.2
+
+**Fixes**
+
+- Addressed a bug where RangeMarkers were not functioning correctly when used alongside SWC.
+
+---
+
+## cx\@24.4.1
+
+**Features**
+
+- Enhanced dropInsertionIndex positioning within the grid
+- Introduced CultureScope widget
+- Introduced RangeMarker widget
+- Added functionality for adjusting pie chart gaps
+
+**Fixes**
+
+- Types for ColumnGraph and LineGraph
+
+---
+
+## cx\@24.3.3
+
+**Features**
+
+- Swimlanes widget
+- Allow aggregates via aggregateAlias inside Grid
+
+**Fixes**
+
+- Fix getCursorPos to properly resolve position within iframes in Firefox
+- Fix drag and drop within iframes
+
+---
+
+## cx\@24.3.0
+
+**Features**
+
+- Support specifying `borderRadius` on `PieChart` slices.
+
+---
+
+## cx\@24.2.0
+
+**Features**
+
+- Documentation updates and additions
+- Currency formatting features
+- Field configurations and enhancements
+- Localization examples and updates
+- Row reordering, drag-and-drop for CodeSnippet
+- Configuration props for data views
+- Copy button tooltip and display enhancements
+
+---
+
+## cx\@24.1.3
+
+**Features**
+
+- Support tooltips and additional configuration on field icons
+
+---
+
+## cx\@24.1.0
+
+**Features**
+
+- Allow using the `fmt` function inside expressions and string templates. For example, this template works: `{[fmt({amount}, "currency;${currency};0;2")]}`
+- Add number formatting flags, i.e. `n;0;2;+ca;` - `+` to show sign for positive number, `c` for compact number formatting, `a` for accounting mode (brackets for negative numbers)
+- Add `Culture.setNumberCulture` and `Culture.setDateTimeCulture` methods which enable using different cultures for numbers and date formatting.
+
+---
+
+## cx\@23.4.1
+
+**Features**
+
+- Allow Validator to render children, i.e. ValidationError
+
+---
+
+## cx\@23.4.0
+
+**Fixes**
+
+- Expose SimpleSelection
+
+---
+
+## cx\@23.3.1
+
+**Fixes**
+
+- Allow up to eight typed parameters in triggers and computables
+- Allow entering negative decimal numbers in NumberFields with reactOn="change"
+
+---
+
+## cx\@23.3.0
+
+**Fixes**
+
+- Fix `quoteStr` handling of special characters (used for multiline string templates)
+
+---
+
+## cx\@23.2.1
+
+**Features**
+
+- Allow Grid to render children, i.e. loading mask
+
+**Fixes**
+
+- Make AccessorChain&lt;T&gt; assignable to AccessorChain&lt;any&gt;
+
+---
+
+## cx\@23.2.0
+
+**Features**
+
+- Dart Sass compatibility (see [Breaking Changes](/docs/intro/breaking-changes))
+- Dropping IE support
+
+---
+
+## cx\@22.11.3
+
+**Fixes**
+
+- Typing for `Dropdown.relatedElement`
+- Typing for `List.keyField`
+
+---
+
+## cx\@22.11.2
+
+**Features**
+
+- Add the `constrain` property to limit NumberField inputs
+
+**Fixes**
+
+- Typing for Url.setBaseFromScript
+- Typing for the `bind` function
+- Typing for the LineGraph
+- Propagate colSpan to grid column footers
+
+---
+
+## cx\@22.11.1
+
+**Features**
+
+- Add the `dayData` property for calendar day styling
+
+**Fixes**
+
+- Add typing for LookupField bindings
+- Improve typing for openContextMenu
+
+---
+
+## cx\@22.10.3
+
+**Features**
+
+- Add LookupField onCreateVisibleOptionsFilter callback docs and example
+
+---
+
+## cx\@22.10.2
+
+**Fixes**
+
+- Properly sort by the second column if the values in the first column are null
+
+---
+
+## cx\@22.10.1
+
+**Features**
+
+- Add the onTrackMappedRecords callback for easier manipulation of sorted and filtered grid data
+- Document onGetGrouping
+
+**Fixes**
+
+- Recalculate the widget on store change to correctly propagate the new store to widget's children
+
+---
+
+## cx\@22.10.0
+
+**Fixes**
+
+- Prevent late autofocus for touch devices
+
+---
+
+## cx\@22.9.0
+
+**Fixes**
+
+- Add text ellipsis to all form fields
+- Fix problems with datetime field dropdowns
+
+---
+
+## cx\@22.8.2
+
+**Fixes**
+
+- Various typing improvements
+
+---
+
+## cx\@22.8.0
+
+**Fixes**
+
+- Allow onContextMenu on all HTML elements in TypeScript
+- Properly handle context menus within windows and dropdowns
+- Allow get/set props in TypeScript
+- Allow accessor chains for the Sandbox.storage prop
+- Orient vertical Sliders to be bottom up, instead of top to bottom with the invert flag to control the behavior
+
+---
+
+## cx\@22.7.1
+
+**Fixes**
+
+- Render overlay backdrop before the body and allow propagation of `mousedown` event to allow integration of other libraries (i.e. prosemirror) which catch events on the document level.
+
+---
+
+## cx\@22.7.0
+
+**Features**
+
+- TreeAdapter now supports preserving expanded state through a flag `restoreExpandedNodesOnLoad`
+- Added an example for stateful tree grids
+
+---
+
+## cx\@22.6.3
+
+**Features**
+
+- TreeAdapter now supports the flag `hideRootNodes`
+- Added the function `findTreePath` to `cx/data`.
+
+**Fixes**
+
+- Typings for MenuItem
+- Typings for PieSlice
+- Skip focusing disabled LookupField options
+- Typings for Window
+
+---
+
+## cx\@22.6.0
+
+**Fixes**
+
+- Fix for onCellEdited firing twice
+- Fix for grid cell editing not working in the first column
+- Allow accessor chains for `value` and `text` props in lookup fields
+
+---
+
+## cx\@22.5.3
+
+**Features**
+
+- Allow tooltips in grid headers
+
+---
+
+## cx\@22.5.2
+
+**Fixes**
+
+- Fix MenuItem typing
+
+---
+
+## cx\@22.5.1
+
+**Fixes**
+
+- Fix typings for the `Repeater` widget
+
+---
+
+## cx\@22.5.0
+
+**Fixes**
+
+- Fix bugs related to `startWithMonday` in `Calendar` widgets
+- Typing improvements
+- Fix detection of touch events inside modal windows

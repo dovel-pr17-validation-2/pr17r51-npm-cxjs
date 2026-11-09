@@ -1,0 +1,232 @@
+@use "sass:math";
+@use "sass:map";
+@use "sass:color";
+@use "cx/src/util/scss/calc" as *;
+
+// =============================================================================
+// THEME-SPECIFIC VARIABLES (must be defined BEFORE @forward)
+// =============================================================================
+
+// GLOBAL VARIABLES
+$cx-theme-default-font-family: "Inter", sans-serif !default;
+
+$cx-theme-default-color: rgb(226, 227, 229) !default;
+
+$cx-theme-default-padding-extra-small: 1px !default;
+$cx-theme-default-padding-small: 2px !default;
+$cx-theme-default-padding-medium: 4px !default;
+$cx-theme-default-padding-large: 6px !default;
+$cx-theme-default-padding-extra-large: 8px !default;
+
+$cx-theme-default-background-color: rgb(15, 16, 17) !default;
+$cx-theme-default-background-color-light: cx-lighten(
+   $cx-theme-default-background-color,
+   3%
+) !default;
+$cx-theme-default-background-color-dark: cx-darken(
+   $cx-theme-default-background-color,
+   2%
+) !default;
+
+$cx-theme-default-border-color: rgb(40, 42, 49) !default;
+$cx-theme-default-border-color-dark: cx-darken(
+   $cx-theme-default-border-color,
+   14%
+) !default;
+
+$cx-theme-default-highlight-color: rgb(26, 28, 31) !default;
+$cx-theme-default-highlight-border-color: $cx-theme-default-border-color !default;
+$cx-theme-default-highlight-color-light: cx-lighten(
+   $cx-theme-default-highlight-color,
+   15%
+) !default;
+$cx-theme-default-error-color: rgba(220, 0, 9, 0.8) !default;
+
+// BUTTON
+$cx-theme-default-button-background-color: $cx-theme-default-highlight-color !default;
+$cx-theme-default-primary-button-background-color: #0284c7 !default;
+$cx-theme-default-danger-button-background-color: #860000 !default;
+
+// WINDOW
+$cx-theme-default-window-background-color: rgb(22, 23, 26) !default;
+$cx-theme-default-window-border-color: $cx-theme-default-border-color !default;
+
+// GRID (theme-specific, not in core)
+$cx-theme-default-grid-background-color: cx-lighten(
+   $cx-theme-default-background-color-light,
+   6%
+) !default;
+
+// =============================================================================
+// Forward cx/src/variables with theme overrides
+// =============================================================================
+@forward "cx/src/variables" with (
+   // Global
+   $cx-default-font-family: $cx-theme-default-font-family !default,
+   $cx-default-font-size: 12px !default,
+   $cx-default-color: $cx-theme-default-color !default,
+   $cx-default-border-color: $cx-theme-default-border-color !default,
+   $cx-default-border-radius: 5px !default,
+
+   // Box
+   $cx-default-box-line-height: 22px !default,
+   $cx-default-box-padding: 0 4px !default,
+   $cx-default-box-font-size: 12px !default,
+
+   // Icon
+   $cx-default-icon-size: 12px !default,
+
+   // Button
+   $cx-default-button-background-color:
+      $cx-theme-default-button-background-color
+      !default,
+   $cx-default-button-border-color: $cx-theme-default-border-color !default,
+   $cx-default-button-color: $cx-theme-default-color !default,
+   $cx-default-button-box-shadow: null !default,
+   $cx-default-button-padding: 0 9px !default,
+   $cx-default-button-font-weight: 500 !default,
+
+   // Form
+   $cx-default-input-background-color: $cx-theme-default-background-color-light
+      !default,
+   $cx-default-input-color: cx-darken($cx-theme-default-color, 2%) !default,
+
+   // Checkbox
+   $cx-default-checkbox-size: 16px !default,
+   $cx-default-checkbox-color: rgba($cx-theme-default-color, 0.7) !default,
+
+   // Radio
+   $cx-default-radio-size: 16px !default,
+   $cx-default-radio-color: rgba($cx-theme-default-color, 0.7) !default,
+
+   // Slider
+   $cx-default-slider-axis-background-color: $cx-theme-default-border-color
+      !default,
+   $cx-default-slider-range-background-color: #024f70 !default,
+
+   // Tag
+   $cx-default-input-tag-background-color:
+      $cx-theme-default-button-background-color
+      !default,
+
+   // Calendar
+   $cx-default-calendar-header-font-size: 14px !default,
+   $cx-default-calendar-background-color:
+      $cx-theme-default-background-color-light
+      !default,
+
+   // DateTimePicker
+   $cx-default-datetimepicker-background-color:
+      $cx-theme-default-background-color-light
+      !default,
+   $cx-default-datetimepicker-border-radius: 5px !default,
+   $cx-default-datetimepicker-border-color: $cx-theme-default-border-color
+      !default,
+   $cx-default-wheel-clip-background-color:
+      $cx-theme-default-background-color-dark
+      !default,
+   $cx-default-wheel-clip-border-color: $cx-theme-default-border-color-dark
+      !default,
+   $cx-default-wheel-clip-border-radius: 5px !default,
+
+   // Grid (only variables that exist in core)
+   $cx-default-grid-data-border-color: transparent !default,
+   $cx-default-grid-data-alternate-background-color: rgba(white, 0.01) !default,
+   $cx-default-grid-header-background-color:
+      $cx-theme-default-button-background-color
+      !default,
+   $cx-default-grid-header-border-color: cx-lighten(
+         $cx-theme-default-border-color,
+         3%
+      )
+      !default,
+
+   // Tooltip
+   $cx-tooltip-background-color: cx-lighten(
+         $cx-theme-default-background-color-light,
+         5%
+      )
+      !default,
+   $cx-tooltip-border-color: $cx-theme-default-border-color !default,
+   $cx-tooltip-background-color-error: cx-lighten(
+         $cx-theme-default-background-color-light,
+         5%
+      )
+      !default,
+   $cx-tooltip-border-color-error: $cx-theme-default-error-color !default,
+
+   // Toast
+   $cx-default-toast-background-color: cx-lighten(
+         cx-lighten($cx-theme-default-background-color-light, 5%),
+         11%
+      )
+      !default,
+   $cx-default-toast-box-shadow: 0 2px 6px 0px rgba(101, 101, 101, 0.4) !default,
+
+   // MonthPicker
+   $cx-default-monthpicker-font-size: 11px !default,
+
+   // Cover
+   $cx-default-cover-background-color: cx-lighten(
+         $cx-theme-default-background-color-light,
+         2%
+      )
+      !default,
+   $cx-default-cover-border-color: cx-lighten(
+         $cx-theme-default-background-color-light,
+         2%
+      )
+      !default,
+
+   // Progressbar
+   $cx-default-progressbar-background-color: rgba(0, 0, 0, 0.18) !default,
+   $cx-default-progressbar-border-width: 0 !default,
+   $cx-default-progressbar-border-radius: 5px !default,
+   $cx-default-progressbar-indicator-background-color:
+      $cx-theme-default-highlight-color
+      !default,
+
+   // Dragclone
+   $cx-default-dragclone-background-color: $cx-theme-default-background-color
+      !default,
+
+   // Chart palette
+   $cx-default-palette-fill-whiten: 0% !default,
+   $cx-default-palette-fill-blacken: 20% !default,
+   $cx-default-palette-fill-hover-whiten: 20% !default,
+   $cx-default-palette-fill-hover-blacken: 10% !default,
+   $cx-default-palette-fill-selected-whiten: 40% !default,
+   $cx-default-palette-fill-selected-blacken: 0% !default,
+   $cx-default-palette-fill-disabled-whiten: 0% !default,
+   $cx-default-palette-stroke-blacken: 0% !default,
+   $cx-default-palette-stroke-whiten: 10% !default,
+
+   // Tab
+   $cx-default-tab-background-color: null !default,
+
+   // Window (only variables that exist in core)
+   $cx-default-window-background-color:
+      $cx-theme-default-window-background-color
+      !default,
+   $cx-default-window-header-color: null !default,
+   $cx-default-window-header-background-color: transparent !default,
+   $cx-default-window-header-padding: 1rem 1rem 0 1.25rem !default,
+   $cx-default-window-header-font-size: 14px !default,
+   $cx-default-window-body-padding: 1rem 1.25rem !default,
+   $cx-default-window-footer-padding: 0 1.25rem 1.25rem 1.25rem !default,
+
+   // Dropdown
+   $cx-default-dropdown-background-color:
+      $cx-theme-default-window-background-color
+      !default
+);
+
+// Use cx variables for derived values
+@use "cx/src/variables" as *;
+
+// =============================================================================
+// THEME-SPECIFIC DERIVED VARIABLES (for use in maps and widgets)
+// =============================================================================
+
+// Re-export for use in maps and widgets
+$cx-theme-default-input-border-color: $cx-default-input-border-color !default;

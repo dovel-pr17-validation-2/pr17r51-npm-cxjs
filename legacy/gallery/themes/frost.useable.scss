@@ -1,0 +1,5 @@
+@use "cx-theme-frost/src/index" as theme;
+
+@use "./util/customize-master" as *;
+
+@include customize-master($brand-background: #4db3d0, $brand-highlight-color: #4db3d0);

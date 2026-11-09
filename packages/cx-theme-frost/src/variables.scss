@@ -1,0 +1,77 @@
+@use "sass:color";
+
+// Theme base values (used to compute derived values before @forward)
+$cx-theme-color: #373a3c !default;
+$cx-theme-border-color: #ccc !default;
+
+// Theme-specific variables (not in cx core)
+$cx-theme-default-highlight-color: #ddf1f6 !default;
+$cx-theme-default-highlight-color-dark: color.adjust($cx-theme-default-highlight-color, $lightness: -10%) !default;
+$cx-theme-default-section-box-shadow: #dbdfed 0 3px, #e5e8f2 0 0 0 1px !default;
+
+// Derived values that depend on base values (computed before @forward)
+$cx-theme-default-checkbox-color: rgba($cx-theme-color, 0.7) !default;
+$cx-theme-default-radio-color: rgba($cx-theme-color, 0.7) !default;
+$cx-theme-default-wheel-clip-border-color: color.adjust($cx-theme-border-color, $lightness: 10%) !default;
+
+// Forward cx/src/variables with theme overrides
+@forward "cx/src/variables" with (
+   // Global
+   $cx-default-color: $cx-theme-color !default,
+   $cx-default-border-color: $cx-theme-border-color !default,
+   $cx-default-border-radius: 5px !default,
+   $cx-default-font-family: ("Open Sans", sans-serif) !default,
+
+   // Box
+   $cx-default-box-font-size: 13px !default,
+   $cx-default-box-line-height: 18px !default,
+   $cx-default-box-border-width: 2px !default,
+   $cx-default-box-padding: 5px !default,
+
+   // Button
+   $cx-default-button-background-color: #eff1f7 !default,
+   $cx-default-button-border-color: #e3e5eb !default,
+
+   // Grid
+   $cx-default-grid-header-background-color: #eff1f7 !default,
+
+   // Checkbox
+   $cx-default-checkbox-size: 16px !default,
+   $cx-default-checkbox-color: $cx-theme-default-checkbox-color !default,
+
+   // Radio
+   $cx-default-radio-size: 16px !default,
+   $cx-default-radio-color: $cx-theme-default-radio-color !default,
+
+   // Input
+   $cx-default-input-border-color: #eff1f7 !default,
+   $cx-default-input-tag-background-color: #eff1f7 !default,
+
+   // Calendar
+   $cx-default-calendar-header-font-size: 14px !default,
+   $cx-default-calendar-header-font-weight: 600 !default,
+
+   // DateTimePicker
+   $cx-default-datetimepicker-border-radius: 5px !default,
+   $cx-default-wheel-clip-border-width: 2px !default,
+   $cx-default-wheel-clip-border-radius: 5px !default,
+   $cx-default-wheel-clip-border-color: $cx-theme-default-wheel-clip-border-color !default,
+
+   // Dropdown
+   $cx-default-dropdown-arrow-offset: 26px !default,
+
+   // Progressbar
+   $cx-default-progressbar-background-color: rgba(0, 0, 0, 0.08) !default,
+   $cx-default-progressbar-border-width: 0 !default,
+   $cx-default-progressbar-border-radius: 5px !default,
+   $cx-default-progressbar-indicator-background-color: $cx-theme-default-highlight-color-dark !default,
+
+   // Slider
+   $cx-default-slider-range-background-color: $cx-theme-default-highlight-color-dark !default,
+
+   // Misc
+   $cx-use-box-line-height-fix: false !default
+);
+
+// Use cx variables for derived values
+@use "cx/src/variables" as *;
